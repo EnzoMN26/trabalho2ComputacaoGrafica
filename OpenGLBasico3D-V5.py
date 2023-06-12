@@ -30,6 +30,15 @@ from Ponto import Ponto
 from Linha import Linha
 #from PIL import Image
 import time
+import math
+
+carroX = 0
+carroY = -0.75
+carroZ = 0
+
+obsX = carroX
+obsY = carroY+2
+obsZ = carroZ+6
 
 
 Angulo = 0.0
@@ -110,6 +119,26 @@ def DefineLuz():
     # concentrado serÃ¡ o brilho. (Valores vÃ¡lidos: de 0 a 128)
     glMateriali(GL_FRONT,GL_SHININESS,51)
     
+
+def rotateX(origin, point, angle):
+
+    ox, oy = origin
+    px, py = point
+    angulo = math.radians(angle)
+
+    qx = ox + math.cos(angulo) * (px - ox) - math.sin(angulo) * (py - oy)
+    return qx
+
+
+def rotateY(origin, point, angle):
+
+    ox, oy = origin
+    px, py = point
+    angulo = math.radians(angle)
+
+    qy = oy + math.sin(angulo) * (px - ox) + math.cos(angulo) * (py - oy)
+    return qy
+    
     
 def DesenhaRetangulo(altura: int):
 
@@ -152,6 +181,92 @@ def DesenhaRetangulo(altura: int):
     glVertex3f(-1,  altura, -1);
     glEnd();
 
+def DesenhaCarro():
+
+    glBegin ( GL_QUADS );
+    glColor3f(0.0,0.0,0.0) # Amarelo
+    # Front Face
+    glNormal3f(0,0,1);
+    glVertex3f(-0.3, -0.2,  0.8);
+    glVertex3f( 0.3, -0.2,  0.8);
+    glVertex3f( 0.3,  0.2,  0.8);
+    glVertex3f(-0.3,  0.2,  0.8);
+    # Front Face Teto
+    glNormal3f(0,0,1);
+    glColor3f(0.5,0.0,0.0) # Vermelho
+    glVertex3f(-0.25, -0.2,  0.3);
+    glVertex3f( 0.25, -0.2,  0.3);
+    glVertex3f( 0.25,  0.3,  0.3);
+    glVertex3f(-0.25,  0.3,  0.3);
+    
+    glColor3f(0.0,0.0,0.0) # Amarelo
+    # Back Face
+    glNormal3f(0,0,-1);
+    glVertex3f(-0.3, -0.2, -0.8);
+    glVertex3f(-0.3,  0.2, -0.8);
+    glVertex3f( 0.3,  0.2, -0.8);
+    glVertex3f( 0.3, -0.2, -0.8);
+
+    # Back Face Teto
+    glNormal3f(0,0,-1);
+    glColor3f(0.0,0.0,0.5) # Vermelho
+    glVertex3f(-0.25, -0.2, -0.3);
+    glVertex3f(-0.25,  0.3, -0.3);
+    glVertex3f( 0.25,  0.3, -0.3);
+    glVertex3f( 0.25, -0.2, -0.3);
+    glColor3f(0.0,0.0,0.0) # Amarelo
+
+    #Top Face
+    glNormal3f(0,1,0);
+    glVertex3f(-0.3,  0.2, -0.8);
+    glVertex3f(-0.3,  0.2,  0.8);
+    glVertex3f( 0.3,  0.2,  0.8);
+    glVertex3f( 0.3,  0.2, -0.8);
+    # Top Face Teto
+    glColor3f(0.5,0.0,0.0) # Vermelho
+    glNormal3f(0,1,0);
+    glVertex3f(-0.25,  0.3, -0.3);
+    glVertex3f(-0.25,  0.3,  0.3);
+    glVertex3f( 0.25,  0.3,  0.3);
+    glVertex3f( 0.25,  0.3, -0.3);
+    glColor3f(0.0,0.0,0.0) # Amarelo
+    #Bottom Face
+    glNormal3f(0,-1,0);
+    glVertex3f(-0.3, -0.2, -0.8);
+    glVertex3f( 0.3, -0.2, -0.8);
+    glVertex3f( 0.3, -0.2,  0.8);
+    glVertex3f(-0.3, -0.2,  0.8);
+    # Right face
+    glNormal3f(1,0,0);
+    glVertex3f( 0.3, -0.2, -0.8);
+    glVertex3f( 0.3,  0.2, -0.8);
+    glVertex3f( 0.3,  0.2,  0.8);
+    glVertex3f( 0.3, -0.2,  0.8);
+    # Right face Teto
+    glNormal3f(1,0,0);
+    glColor3f(0.5,0.0,0.0) # Vermelho
+    glVertex3f( 0.25, -0.2, -0.3);
+    glVertex3f( 0.25,  0.3, -0.3);
+    glVertex3f( 0.25,  0.3,  0.3);
+    glVertex3f( 0.25, -0.2,  0.3);
+    
+    glColor3f(0.0,0.0,0.0) # Amarelo
+    # Left Face
+    glNormal3f(-1,0,0);
+    glVertex3f(-0.3, -0.2, -0.8);
+    glVertex3f(-0.3, -0.2,  0.8);
+    glVertex3f(-0.3,  0.2,  0.8);
+    glVertex3f(-0.3,  0.2, -0.8);
+    
+    # Left Face Teto
+    glNormal3f(-1,0,0);
+    glColor3f(0.5,0.0,0.0) # Vermelho
+    glVertex3f(-0.25, -0.2, -0.3);
+    glVertex3f(-0.25, -0.2,  0.3);
+    glVertex3f(-0.25,  0.3,  0.3);
+    glVertex3f(-0.25,  0.3, -0.3);
+    glEnd();
+
 
 # **********************************************************************
 # DesenhaCubos()
@@ -162,7 +277,7 @@ def DesenhaCubo():
     glutSolidCube(1)
     
 def PosicUser():
-
+    global obsX, obsY, obsZ, carroX, carroY
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     # Seta a viewport para ocupar toda a janela
@@ -172,7 +287,7 @@ def PosicUser():
     gluPerspective(60,AspectRatio,0.01,50) # Projecao perspectiva
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    gluLookAt(0, 4, 10, 0,0,0, 0,1.0,0) 
+    gluLookAt(obsX, obsY, obsZ, carroX,carroY,carroZ, 0,1.0,0) 
 
 # **********************************************************************
 # void DesenhaLadrilho(int corBorda, int corDentro)
@@ -227,7 +342,10 @@ def display():
 
     glMatrixMode(GL_MODELVIEW)
     
-    
+    glPushMatrix()
+    glTranslatef(carroX,carroY,carroZ)
+    DesenhaCarro()
+    glPopMatrix()
     
      
     DesenhaPiso()
@@ -235,14 +353,14 @@ def display():
     glPushMatrix()
     glTranslatef(-2,0,0)
     glRotatef(Angulo,0,1,0)
-    DesenhaRetangulo(3)
+    #DesenhaRetangulo(3)
     glPopMatrix()
     
     glColor3f(0.5,0.5,0.0) # Amarelo
     glPushMatrix()
     glTranslatef(2,0,0)
     glRotatef(-Angulo,0,1,0)
-    DesenhaCubo()
+    #DesenhaCubo()
     glPopMatrix()
 
     Angulo = Angulo + 1
@@ -295,7 +413,8 @@ def keyboard(*args):
 
     if args[0] == b'i':
         image.show()
-
+        print("OLA")
+    
     # ForÃ§a o redesenho da tela
     glutPostRedisplay()
 
@@ -304,15 +423,34 @@ def keyboard(*args):
 # **********************************************************************
 
 def arrow_keys(a_keys: int, x: int, y: int):
+    global obsX, obsZ, obsY, carroX, carroY
     if a_keys == GLUT_KEY_UP:         # Se pressionar UP
-        pass
+        
+        tempY = rotateX((carroX, carroY), (obsY, obsZ), 5)
+        tempZ= rotateY((carroX, carroY), (obsY, obsZ), 5)
+        if tempY > -1:
+            obsY = tempY
+            obsZ = tempZ
+            
     if a_keys == GLUT_KEY_DOWN:       # Se pressionar DOWN
-        pass
+        
+        tempY = rotateX((carroX, carroY), (obsY, obsZ), -5)
+        tempZ= rotateY((carroX, carroY), (obsY, obsZ), -5)
+        if tempY < 4:
+            obsY = tempY
+            obsZ = tempZ
     if a_keys == GLUT_KEY_LEFT:       # Se pressionar LEFT
-        pass
+        tempX = rotateX((carroX, carroZ), (obsX, obsZ), -5)
+        tempZ= rotateY((carroX, carroZ), (obsX, obsZ), -5)
+        if tempX < 4:
+            obsX = tempX
+            obsZ = tempZ
     if a_keys == GLUT_KEY_RIGHT:      # Se pressionar RIGHT
-        pass
-
+        tempX = rotateX((carroX, carroZ), (obsX, obsZ), 5)
+        tempZ= rotateY((carroX, carroZ), (obsX, obsZ), 5)
+        if tempX > -4:
+            obsX = tempX
+            obsZ = tempZ
     glutPostRedisplay()
 
 

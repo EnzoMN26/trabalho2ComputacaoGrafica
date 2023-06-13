@@ -32,14 +32,10 @@ from Linha import Linha
 import time
 import math
 
-carroX = 0
-carroY = -0.75
-carroZ = 0
-
-obsX = carroX
-obsY = carroY+2
-obsZ = carroZ+6
-
+rotaCarro = 0
+observador = Ponto(0,2,6)
+carro = Ponto(0,-0.75,0)
+alvo = Ponto(0,-0.75,-6)
 
 Angulo = 0.0
 # **********************************************************************
@@ -120,24 +116,7 @@ def DefineLuz():
     glMateriali(GL_FRONT,GL_SHININESS,51)
     
 
-def rotateX(origin, point, angle):
 
-    ox, oy = origin
-    px, py = point
-    angulo = math.radians(angle)
-
-    qx = ox + math.cos(angulo) * (px - ox) - math.sin(angulo) * (py - oy)
-    return qx
-
-
-def rotateY(origin, point, angle):
-
-    ox, oy = origin
-    px, py = point
-    angulo = math.radians(angle)
-
-    qy = oy + math.sin(angulo) * (px - ox) + math.cos(angulo) * (py - oy)
-    return qy
     
     
 def DesenhaRetangulo(altura: int):
@@ -277,7 +256,7 @@ def DesenhaCubo():
     glutSolidCube(1)
     
 def PosicUser():
-    global obsX, obsY, obsZ, carroX, carroY
+    global observador, alvo, carro
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     # Seta a viewport para ocupar toda a janela
@@ -287,7 +266,7 @@ def PosicUser():
     gluPerspective(60,AspectRatio,0.01,50) # Projecao perspectiva
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    gluLookAt(obsX, obsY, obsZ, carroX,carroY,carroZ, 0,1.0,0) 
+    gluLookAt(observador.x, observador.y, observador.z, alvo.x, alvo.y, alvo.z, 0,1.0,0)
 
 # **********************************************************************
 # void DesenhaLadrilho(int corBorda, int corDentro)
@@ -325,7 +304,46 @@ def DesenhaPiso():
         glPopMatrix()
         glTranslated(1, 0, 0)
     glPopMatrix()     
+    
+def rotateVertex(origin, point, angle):
 
+    ox = origin.x
+    oz = origin.z
+    px = point.x
+    pz = point.z
+
+    angulo = math.radians(angle)
+
+    qx = ox + math.cos(angulo) * (px - ox) - math.sin(angulo) * (pz - oz)
+    qz = oz + math.sin(angulo) * (px - ox) + math.cos(angulo) * (pz - oz)
+    
+    point.x = qx
+    point.z = qz
+    
+
+def rotaAlvo(angulo):
+    global carro, alvo
+    rotateVertex(carro, alvo, angulo)
+    rotaObs()
+
+
+def rotaObs():
+    global observador, carro, alvo
+    vetor_aux = alvo.__sub__(carro)
+    observador = carro.__sub__(vetor_aux)
+    observador.y = 2
+    
+def andaCarro():
+    global carro, alvo, observador
+    
+    vetor_aux = alvo.__sub__(carro)
+    vetor_aux = vetor_aux.__mul__(0.5)
+    carro = carro.__add__(vetor_aux)
+    alvo = alvo.__add__(vetor_aux)
+    vetor_aux2 = alvo.__sub__(carro)
+    observador = carro.__sub__(vetor_aux2)
+    observador.y = 2
+    
 
 # **********************************************************************
 # display()
@@ -333,7 +351,7 @@ def DesenhaPiso():
 #
 # **********************************************************************
 def display():
-    global Angulo
+    global carro, observador, alvo, Angulo, rotaCarro
     # Limpa a tela com  a cor de fundo
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -343,7 +361,8 @@ def display():
     glMatrixMode(GL_MODELVIEW)
     
     glPushMatrix()
-    glTranslatef(carroX,carroY,carroZ)
+    glTranslatef(carro.x,carro.y,carro.z)
+    glRotatef(rotaCarro,0,1,0)
     DesenhaCarro()
     glPopMatrix()
     
@@ -423,35 +442,20 @@ def keyboard(*args):
 # **********************************************************************
 
 def arrow_keys(a_keys: int, x: int, y: int):
-    global obsX, obsZ, obsY, carroX, carroY
+    global rotaCarro
+
     if a_keys == GLUT_KEY_UP:         # Se pressionar UP
-        
-        tempY = rotateX((carroX, carroY), (obsY, obsZ), 5)
-        tempZ= rotateY((carroX, carroY), (obsY, obsZ), 5)
-        if tempY > -1:
-            obsY = tempY
-            obsZ = tempZ
-            
+        andaCarro()
     if a_keys == GLUT_KEY_DOWN:       # Se pressionar DOWN
-        
-        tempY = rotateX((carroX, carroY), (obsY, obsZ), -5)
-        tempZ= rotateY((carroX, carroY), (obsY, obsZ), -5)
-        if tempY < 4:
-            obsY = tempY
-            obsZ = tempZ
+        pass
     if a_keys == GLUT_KEY_LEFT:       # Se pressionar LEFT
-        tempX = rotateX((carroX, carroZ), (obsX, obsZ), -5)
-        tempZ= rotateY((carroX, carroZ), (obsX, obsZ), -5)
-        if tempX < 4:
-            obsX = tempX
-            obsZ = tempZ
+        rotaAlvo(10)
+        rotaCarro += -10
     if a_keys == GLUT_KEY_RIGHT:      # Se pressionar RIGHT
-        tempX = rotateX((carroX, carroZ), (obsX, obsZ), 5)
-        tempZ= rotateY((carroX, carroZ), (obsX, obsZ), 5)
-        if tempX > -4:
-            obsX = tempX
-            obsZ = tempZ
+        rotaAlvo(-10)
+        rotaCarro += 10
     glutPostRedisplay()
+
 
 
 def mouse(button: int, state: int, x: int, y: int):

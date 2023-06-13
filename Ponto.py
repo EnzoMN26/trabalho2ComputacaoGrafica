@@ -31,13 +31,18 @@ class Ponto:
 # https://www.programiz.com/python-programming/operator-overloading
     def __add__(self, other):
             x = self.x + other.x
-            y = self.y + other.y
-            return Ponto(x, y)
+            z = self.z + other.z
+            return Ponto(x, self.y, z)
+    
+    def __sub__(self, other):
+            x = self.x - other.x
+            z = self.z - other.z
+            return Ponto(x, self.y, z)
 
     def __mul__(self, other: int):
             x = self.x * other
-            y = self.y * other
-            return Ponto(x, y)
+            z = self.z * other
+            return Ponto(x, self.y, z)
 
 
 

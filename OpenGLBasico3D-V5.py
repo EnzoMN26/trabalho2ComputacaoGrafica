@@ -23,6 +23,7 @@
 #   Veja o arquivo Patch.rtf, armazenado na mesma pasta deste fonte.
 # 
 # ***********************************************************************************
+import random
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
@@ -32,13 +33,12 @@ import numpy as np
 from PIL import Image
 import time
 import math
-from pathlib import Path
 
 rotaCarro = 0
 observador = Ponto(0,2,6)
 carro = Ponto(0,-0.75,0)
 alvo = Ponto(0,-0.75,-6)
-
+posicoesPredios = [[0,3,4], [0,6,5], [0,7,4], [0,9,5], [0,12,5], [0,13,5], [0,28,4], [0,29,3], [2,1,5], [2,2,5], [2,6,4], [2,8,3], [2,20,3], [2,21,4], [2,27,5], [2,28,3], [3,2,5], [3,3,5], [3,7,4], [3,9,3], [3,11,5], [3,12,5], [3,22,4], [4,2,5], [4,6,4], [4,8,5], [4,10,4], [4,12,3], [4,13,5], [5,3,5], [5,11,5], [5,22,4], [5,28,5], [6,1,3], [6,2,5], [6,10,4], [6,12,3], [6,13,5], [6,20,3], [6,27,3], [7,2,5], [7,3,5], [7,7,4], [7,11,5], [7,12,5], [7,13,4], [7,21,3], [7,22,4], [7,28,5], [7,29,3], [8,1,3], [8,6,4], [8,8,5], [8,12,3], [8,13,5], [8,28,4], [9,3,5], [9,13,4], [9,22,4], [9,28,5], [10,2,5], [10,10,4], [10,12,3], [10,13,5], [10,20,3], [10,21,5], [10,27,3], [10,28,4], [11,2,5], [11,3,5], [11,22,4], [11,28,5], [11,29,3], [12,1,3], [12,2,5], [12,6,4], [12,12,3], [12,13,5], [12,20,3], [12,21,5], [12,28,4], [13,2,5], [13,3,5], [13,7,4], [13,9,3], [13,11,5], [13,29,3], [14,8,5], [14,12,3], [14,20,3], [14,21,5], [14,27,3], [27,21,3],[27,23,5],[27,29,4],[28,28,3],[28,2,5],[19,16,4],[19,20,5],[15,21,3],[17,22,4],[15,22,5],[27,13,4],[19,18,5], [19,2,4],[19,5,3],[19,9,4],[19,12,5],[21,13,3],[21,10,4],[21,6,3],[18,13,5],[21,16,3],[21,21,5],[23,13,4],[25,13,4],[27,16,5]]
 Texturas = []
 Angulo = 0.0
 
@@ -134,7 +134,8 @@ def init():
     Texturas += [LoadTexture('./TexturaAsfalto/UDR.jpeg')]
     Texturas += [LoadTexture('./TexturaAsfalto/UL.jpeg')]
     Texturas += [LoadTexture('./TexturaAsfalto/ULR.jpeg')]
-    Texturas += [LoadTexture('./TexturaAsfalto/UR.jpeg')] 
+    Texturas += [LoadTexture('./TexturaAsfalto/UR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/texturaPredio.jpg')]  
     print(Texturas)
     # Texturas += [LoadTexture(Path("TexturaAsfalto/DL.jpg"))] 
 
@@ -208,23 +209,32 @@ def leMatriz():
         matriznp = np.array(matriz,dtype='int')
 
 
-def DesenhaRetangulo(altura: int):
-
+def DesenhaPredio(altura: int):
+    UseTexture(12)
     glBegin ( GL_QUADS );
     # Front Face
     glNormal3f(0,0,1);
+    glTexCoord(1,1)
     glVertex3f(-1, -1,  1);
+    glTexCoord(0,1)
     glVertex3f( 1, -1,  1);
+    glTexCoord(0,0)
     glVertex3f( 1,  altura,  1);
+    glTexCoord(1,0)
     glVertex3f(-1,  altura,  1);
     # Back Face
     glNormal3f(0,0,-1);
+    glTexCoord(0,1)
     glVertex3f(-1, -1, -1);
+    glTexCoord(0,0)
     glVertex3f(-1,  altura, -1);
+    glTexCoord(1,0)
     glVertex3f( 1,  altura, -1);
+    glTexCoord(1,1)
     glVertex3f( 1, -1, -1);
     # Top Face
     glNormal3f(0,1,0);
+    
     glVertex3f(-1,  altura, -1);
     glVertex3f(-1,  altura,  1);
     glVertex3f( 1,  altura,  1);
@@ -237,15 +247,23 @@ def DesenhaRetangulo(altura: int):
     glVertex3f(-1, -1,  1);
     # Right face
     glNormal3f(1,0,0);
+    glTexCoord(0,1)
     glVertex3f( 1, -1, -1);
+    glTexCoord(0,0)
     glVertex3f( 1,  altura, -1);
+    glTexCoord(1,0)
     glVertex3f( 1,  altura,  1);
+    glTexCoord(1,1)
     glVertex3f( 1, -1,  1);
     # Left Face
     glNormal3f(-1,0,0);
+    glTexCoord(1,1)
     glVertex3f(-1, -1, -1);
+    glTexCoord(0,1)
     glVertex3f(-1, -1,  1);
+    glTexCoord(0,0)
     glVertex3f(-1,  altura,  1);
+    glTexCoord(1,0)
     glVertex3f(-1,  altura, -1);
     glEnd();
 
@@ -367,39 +385,46 @@ def DesenhaLadrilho():
     glBegin ( GL_QUADS )
     glNormal3f(0,1,0)
     glTexCoord(0,0)
-    glVertex3f(-0.5,  0.0, -0.5)
+    glVertex3f(-1.5,  0.0, -1.5)
     glTexCoord(1,0)
-    glVertex3f(-0.5,  0.0,  0.5)
+    glVertex3f(-1.5,  0.0,  1.5)
     glTexCoord(1,1)
-    glVertex3f( 0.5,  0.0,  0.5)
+    glVertex3f( 1.5,  0.0,  1.5)
     glTexCoord(0,1)
-    glVertex3f( 0.5,  0.0, -0.5)
+    glVertex3f( 1.5,  0.0, -1.5)
     glEnd()
     
     glColor3f(1,1,1) # desenha a borda da QUAD 
     glBegin ( GL_LINE_STRIP )
     glNormal3f(0,1,0)
-    glVertex3f(-0.5,  0.0, -0.5)
-    glVertex3f(-0.5,  0.0,  0.5)
-    glVertex3f( 0.5,  0.0,  0.5)
-    glVertex3f( 0.5,  0.0, -0.5)
+    glVertex3f(-1.5,  0.0, -1.5)
+    glVertex3f(-1.5,  0.0,  1.5)
+    glVertex3f( 1.5,  0.0,  1.5)
+    glVertex3f( 1.5,  0.0, -1.5)
     glEnd()
     
 # **********************************************************************
 def DesenhaPiso():
     glPushMatrix()
-    glTranslated(-20,-1,-10)
+    glTranslated(-60,-1,-30)
+    aux = 0
     for x in matriznp:
         glPushMatrix()
+        aux2 = 0
         for y in x:
             if y==0:
+                for p in posicoesPredios:
+                    if p[0] == aux and p[1] == aux2:
+                        DesenhaPredio(p[2])
                 UseTexture(5)
             else:
                 UseTexture(y-1)
             DesenhaLadrilho()
-            glTranslated(0, 0, 1)
+            glTranslated(0, 0, 3)
+            aux2 += 1
         glPopMatrix()
-        glTranslated(1, 0, 0)
+        glTranslated(3, 0, 0)
+        aux += 1
     glPopMatrix()       
     
 def rotateVertex(origin, point, angle):
@@ -469,11 +494,11 @@ def display():
     UseTexture(-1)
     
     glColor3f(0.5,0.0,0.0) # Vermelho
-    glPushMatrix()
-    glTranslatef(-2,0,0)
-    glRotatef(Angulo,0,1,0)
-    DesenhaRetangulo(3)
-    glPopMatrix()
+    # glPushMatrix()
+    # glTranslatef(-2,0,0)
+    # glRotatef(Angulo,0,1,0)
+    # DesenhaRetangulo(3)
+    # glPopMatrix()
     
     glColor3f(0.5,0.5,0.0) # Amarelo
     glPushMatrix()
@@ -549,11 +574,11 @@ def arrow_keys(a_keys: int, x: int, y: int):
     if a_keys == GLUT_KEY_DOWN:       # Se pressionar DOWN
         pass
     if a_keys == GLUT_KEY_LEFT:       # Se pressionar LEFT
-        rotaAlvo(10)
-        rotaCarro += -10
+        rotaAlvo(-15)
+        rotaCarro += 15
     if a_keys == GLUT_KEY_RIGHT:      # Se pressionar RIGHT
-        rotaAlvo(-10)
-        rotaCarro += 10
+        rotaAlvo(15)
+        rotaCarro += -15
     glutPostRedisplay()
 
 

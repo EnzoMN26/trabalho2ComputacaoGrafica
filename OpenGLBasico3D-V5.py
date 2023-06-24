@@ -28,16 +28,86 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from Ponto import Ponto
 from Linha import Linha
-#from PIL import Image
+import numpy as np
+from PIL import Image
 import time
 import math
+from pathlib import Path
 
 rotaCarro = 0
 observador = Ponto(0,2,6)
 carro = Ponto(0,-0.75,0)
 alvo = Ponto(0,-0.75,-6)
 
+Texturas = []
 Angulo = 0.0
+
+# **********************************************************************
+# LoadTexture
+# Retorna o id da textura lida
+# **********************************************************************
+def LoadTexture(nome) -> int:
+    # carrega a imagem
+    image = Image.open(nome)
+    # print ("X:", image.size[0])
+    # print ("Y:", image.size[1])
+    # converte para o formato de OpenGL 
+    img_data = np.array(list(image.getdata()), np.uint8)
+    # Habilita o uso de textura
+    glEnable ( GL_TEXTURE_2D )
+
+    #Cria um ID para texura
+    texture = glGenTextures(1)
+    errorCode =  glGetError()
+    if errorCode == GL_INVALID_OPERATION: 
+        print ("Erro: glGenTextures chamada entre glBegin/glEnd.")
+        return -1
+
+    # Define a forma de armazenamento dos pixels na textura (1= alihamento por byte)
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+    # Define que tipo de textura ser usada
+    # GL_TEXTURE_2D ==> define que ser· usada uma textura 2D (bitmaps)
+    # e o nro dela
+    glBindTexture(GL_TEXTURE_2D, texture)
+
+    # texture wrapping params
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+    # texture filtering params
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+
+    errorCode = glGetError()
+    if errorCode != GL_NO_ERROR:
+        print ("Houve algum erro na criacao da textura.")
+        return -1
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.size[0], image.size[1], 0, GL_RGB, GL_UNSIGNED_BYTE, img_data)
+    # neste ponto, "texture" tem o nro da textura que foi carregada
+    errorCode = glGetError()
+    if errorCode == GL_INVALID_OPERATION:
+        print ("Erro: glTexImage2D chamada entre glBegin/glEnd.")
+        return -1
+
+    if errorCode != GL_NO_ERROR:
+        print ("Houve algum erro na criacao da textura.")
+        return -1
+    #image.show()
+    return texture
+
+def UseTexture (NroDaTextura: int):
+    global Texturas
+
+    if (NroDaTextura>len(Texturas)):
+        print ("Numero invalido da textura.")
+        glDisable (GL_TEXTURE_2D)
+        return
+    if (NroDaTextura < 0):
+        glDisable (GL_TEXTURE_2D)
+    else:
+        glEnable (GL_TEXTURE_2D)
+        glBindTexture(GL_TEXTURE_2D, Texturas[NroDaTextura])
+
 # **********************************************************************
 #  init()
 #  Inicializa os parÃ¢metros globais de OpenGL
@@ -52,11 +122,22 @@ def init():
     glEnable (GL_CULL_FACE )
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-    #image = Image.open("Tex.png")
-    #print ("X:", image.size[0])
-    #print ("Y:", image.size[1])
-    #image.show()
-    
+    global Texturas
+    Texturas += [LoadTexture('./TexturaAsfalto/CROSS.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/DL.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/DLR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/DR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/LR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/GRASS.jpg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/UD.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/UDL.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/UDR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/UL.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/ULR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/UR.jpeg')] 
+    print(Texturas)
+    # Texturas += [LoadTexture(Path("TexturaAsfalto/DL.jpg"))] 
+
    
 
 # **********************************************************************
@@ -116,9 +197,17 @@ def DefineLuz():
     glMateriali(GL_FRONT,GL_SHININESS,51)
     
 
+def leMatriz():
+    global matriznp
+    matriz = []
+    with open('./TexturaAsfalto/Mapa1.txt','r') as data_file:
+        next(data_file)
+        for line in data_file:
+            data = line.split()
+            matriz.append(data)
+        matriznp = np.array(matriz,dtype='int')
 
-    
-    
+
 def DesenhaRetangulo(altura: int):
 
     glBegin ( GL_QUADS );
@@ -274,12 +363,16 @@ def PosicUser():
 # O ladrilho tem largula 1, centro no (0,0,0) e estÃ¡ sobre o plano XZ
 # **********************************************************************
 def DesenhaLadrilho():
-    glColor3f(0,0,1) # desenha QUAD preenchido
+    glColor3f(1,1,1) # desenha QUAD preenchido
     glBegin ( GL_QUADS )
     glNormal3f(0,1,0)
+    glTexCoord(0,0)
     glVertex3f(-0.5,  0.0, -0.5)
+    glTexCoord(1,0)
     glVertex3f(-0.5,  0.0,  0.5)
+    glTexCoord(1,1)
     glVertex3f( 0.5,  0.0,  0.5)
+    glTexCoord(0,1)
     glVertex3f( 0.5,  0.0, -0.5)
     glEnd()
     
@@ -296,14 +389,18 @@ def DesenhaLadrilho():
 def DesenhaPiso():
     glPushMatrix()
     glTranslated(-20,-1,-10)
-    for x in range(-20, 20):
+    for x in matriznp:
         glPushMatrix()
-        for z in range(-20, 20):
+        for y in x:
+            if y==0:
+                UseTexture(5)
+            else:
+                UseTexture(y-1)
             DesenhaLadrilho()
             glTranslated(0, 0, 1)
         glPopMatrix()
         glTranslated(1, 0, 0)
-    glPopMatrix()     
+    glPopMatrix()       
     
 def rotateVertex(origin, point, angle):
 
@@ -344,7 +441,7 @@ def andaCarro():
     observador = carro.__sub__(vetor_aux2)
     observador.y = 2
     
-
+leMatriz()
 # **********************************************************************
 # display()
 # Funcao que exibe os desenhos na tela
@@ -368,11 +465,14 @@ def display():
     
      
     DesenhaPiso()
+
+    UseTexture(-1)
+    
     glColor3f(0.5,0.0,0.0) # Vermelho
     glPushMatrix()
     glTranslatef(-2,0,0)
     glRotatef(Angulo,0,1,0)
-    #DesenhaRetangulo(3)
+    DesenhaRetangulo(3)
     glPopMatrix()
     
     glColor3f(0.5,0.5,0.0) # Amarelo

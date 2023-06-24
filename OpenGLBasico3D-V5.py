@@ -53,7 +53,6 @@ def LoadTexture(nome) -> int:
     # print ("Y:", image.size[1])
     # converte para o formato de OpenGL 
     img_data = np.array(list(image.getdata()), np.uint8)
-
     # Habilita o uso de textura
     glEnable ( GL_TEXTURE_2D )
 
@@ -123,9 +122,21 @@ def init():
     glEnable (GL_CULL_FACE )
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-    global Texturas 
-    Texturas += [LoadTexture(Path("TexturaAsfalto/CROSS.jpg"))] 
-    Texturas += [LoadTexture(Path("TexturaAsfalto/DL.jpg"))] 
+    global Texturas
+    Texturas += [LoadTexture('./TexturaAsfalto/CROSS.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/DL.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/DLR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/DR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/LR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/GRASS.jpg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/UD.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/UDL.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/UDR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/UL.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/ULR.jpeg')]
+    Texturas += [LoadTexture('./TexturaAsfalto/UR.jpeg')] 
+    print(Texturas)
+    # Texturas += [LoadTexture(Path("TexturaAsfalto/DL.jpg"))] 
 
    
 
@@ -187,17 +198,16 @@ def DefineLuz():
     
 
 def leMatriz():
+    global matriznp
     matriz = []
     with open('./TexturaAsfalto/Mapa1.txt','r') as data_file:
         next(data_file)
         for line in data_file:
             data = line.split()
             matriz.append(data)
-        print(matriz[1][2])
+        matriznp = np.array(matriz,dtype='int')
 
 
-    
-    
 def DesenhaRetangulo(altura: int):
 
     glBegin ( GL_QUADS );
@@ -358,11 +368,11 @@ def DesenhaLadrilho():
     glNormal3f(0,1,0)
     glTexCoord(0,0)
     glVertex3f(-0.5,  0.0, -0.5)
-    glTexCoord(0,1)
+    glTexCoord(1,0)
     glVertex3f(-0.5,  0.0,  0.5)
     glTexCoord(1,1)
     glVertex3f( 0.5,  0.0,  0.5)
-    glTexCoord(1,0)
+    glTexCoord(0,1)
     glVertex3f( 0.5,  0.0, -0.5)
     glEnd()
     
@@ -379,15 +389,18 @@ def DesenhaLadrilho():
 def DesenhaPiso():
     glPushMatrix()
     glTranslated(-20,-1,-10)
-    for x in range(-20, 20):
+    for x in matriznp:
         glPushMatrix()
-        for z in range(-20, 20):
-            UseTexture(1) # desabilita o uso de texturas
+        for y in x:
+            if y==0:
+                UseTexture(5)
+            else:
+                UseTexture(y-1)
             DesenhaLadrilho()
             glTranslated(0, 0, 1)
         glPopMatrix()
         glTranslated(1, 0, 0)
-    glPopMatrix()     
+    glPopMatrix()       
     
 def rotateVertex(origin, point, angle):
 
@@ -441,6 +454,7 @@ def display():
 
     DefineLuz()
     PosicUser()
+
     glMatrixMode(GL_MODELVIEW)
     
     glPushMatrix()
@@ -451,11 +465,14 @@ def display():
     
      
     DesenhaPiso()
+
+    UseTexture(-1)
+    
     glColor3f(0.5,0.0,0.0) # Vermelho
     glPushMatrix()
     glTranslatef(-2,0,0)
     glRotatef(Angulo,0,1,0)
-    #DesenhaRetangulo(3)
+    DesenhaRetangulo(3)
     glPopMatrix()
     
     glColor3f(0.5,0.5,0.0) # Amarelo

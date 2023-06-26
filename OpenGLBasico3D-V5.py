@@ -39,6 +39,7 @@ observador = Ponto(0,2,6)
 carro = Ponto(0,-0.75,0)
 alvo = Ponto(0,-0.75,-6)
 posicoesPredios = [[0,3,4], [0,6,5], [0,7,4], [0,9,5], [0,12,5], [0,13,5], [0,28,4], [0,29,3], [2,1,5], [2,2,5], [2,6,4], [2,8,3], [2,20,3], [2,21,4], [2,27,5], [2,28,3], [3,2,5], [3,3,5], [3,7,4], [3,9,3], [3,11,5], [3,12,5], [3,22,4], [4,2,5], [4,6,4], [4,8,5], [4,10,4], [4,12,3], [4,13,5], [5,3,5], [5,11,5], [5,22,4], [5,28,5], [6,1,3], [6,2,5], [6,10,4], [6,12,3], [6,13,5], [6,20,3], [6,27,3], [7,2,5], [7,3,5], [7,7,4], [7,11,5], [7,12,5], [7,13,4], [7,21,3], [7,22,4], [7,28,5], [7,29,3], [8,1,3], [8,6,4], [8,8,5], [8,12,3], [8,13,5], [8,28,4], [9,3,5], [9,13,4], [9,22,4], [9,28,5], [10,2,5], [10,10,4], [10,12,3], [10,13,5], [10,20,3], [10,21,5], [10,27,3], [10,28,4], [11,2,5], [11,3,5], [11,22,4], [11,28,5], [11,29,3], [12,1,3], [12,2,5], [12,6,4], [12,12,3], [12,13,5], [12,20,3], [12,21,5], [12,28,4], [13,2,5], [13,3,5], [13,7,4], [13,9,3], [13,11,5], [13,29,3], [14,8,5], [14,12,3], [14,20,3], [14,21,5], [14,27,3], [27,21,3],[27,23,5],[27,29,4],[28,28,3],[28,2,5],[19,16,4],[19,20,5],[15,21,3],[17,22,4],[15,22,5],[27,13,4],[19,18,5], [19,2,4],[19,5,3],[19,9,4],[19,12,5],[21,13,3],[21,10,4],[21,6,3],[18,13,5],[21,16,3],[21,21,5],[23,13,4],[25,13,4],[27,16,5]]
+posicoesGasolina = [[9,1],[25,1],[0,8],[15,8],[0,29],[25,20],[18,26]]
 Texturas = []
 Angulo = 0.0
 camera = 0
@@ -436,6 +437,14 @@ def DesenhaPiso():
                         DesenhaPredio(p[2])
                 UseTexture(5)
             else:
+                for p in posicoesGasolina:
+                    if p[1] == aux and p[0] == aux2:
+                        glColor3f(0.5,0.0,0.0) # Vermelho
+                        glPushMatrix()
+                        glTranslatef(1,1,1)
+                        glRotatef(Angulo,0,1,0)
+                        DesenhaCubo()
+                        glPopMatrix()
                 UseTexture(y-1)
             DesenhaLadrilho()
             glTranslated(3, 0, 0)
@@ -480,6 +489,7 @@ def andaCarro():
     
     auxX = math.floor(((carro.__add__(vetor_aux)).x)/3)
     auxZ = math.floor(((carro.__add__(vetor_aux)).z)/3)
+    i = 0
 
     xMatriz = auxX + 15
     zMatriz = auxZ + 15
@@ -488,6 +498,10 @@ def andaCarro():
         return
     elif matriznp[zMatriz][xMatriz] == 0:
         return
+    for p in posicoesGasolina:
+        if p[0] == xMatriz and p[1] == zMatriz:
+            posicoesGasolina.pop(i)
+        i+=1
 
     vetor_aux = alvo.__sub__(carro)
     vetor_aux = vetor_aux.__mul__(0.05)
@@ -529,7 +543,7 @@ def display():
     
     #glColor3f(0.5,0.0,0.0) # Vermelho
     # glPushMatrix()
-    # glTranslatef(-2,0,0)
+    # glTranslatef(0,1,0)
     # glRotatef(Angulo,0,1,0)
     # DesenhaRetangulo(3)
     # glPopMatrix()
@@ -613,7 +627,7 @@ def arrow_keys(a_keys: int, x: int, y: int):
     global rotaCarro
 
     if a_keys == GLUT_KEY_UP:         # Se pressionar UP
-        andaCarro()
+        pass
     if a_keys == GLUT_KEY_DOWN:       # Se pressionar DOWN
         pass
     if a_keys == GLUT_KEY_LEFT:       # Se pressionar LEFT

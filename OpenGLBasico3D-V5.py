@@ -44,6 +44,7 @@ Texturas = []
 Angulo = 0.0
 camera = 0
 flagAnda = False
+contadorCombustivel = 300
 
 # **********************************************************************
 # LoadTexture
@@ -139,7 +140,6 @@ def init():
     Texturas += [LoadTexture('./TexturaAsfalto/ULR.jpeg')]
     Texturas += [LoadTexture('./TexturaAsfalto/UR.jpeg')]
     Texturas += [LoadTexture('./TexturaAsfalto/texturaPredio.jpg')]  
-    print(Texturas)
     # Texturas += [LoadTexture(Path("TexturaAsfalto/DL.jpg"))] 
 
    
@@ -483,7 +483,7 @@ def rotaObs():
     observador.y = 2
     
 def andaCarro():
-    global carro, alvo, observador, matriznp
+    global carro, alvo, observador, matriznp, contadorCombustivel
     
     vetor_aux = (alvo.__sub__(carro)).__mul__(0.2)
     
@@ -501,8 +501,11 @@ def andaCarro():
     for p in posicoesGasolina:
         if p[0] == xMatriz and p[1] == zMatriz:
             posicoesGasolina.pop(i)
+            contadorCombustivel+=175
         i+=1
-
+    if contadorCombustivel<=0:
+        return
+    
     vetor_aux = alvo.__sub__(carro)
     vetor_aux = vetor_aux.__mul__(0.05)
     carro = carro.__add__(vetor_aux)
@@ -510,6 +513,8 @@ def andaCarro():
     vetor_aux2 = alvo.__sub__(carro)
     observador = carro.__sub__(vetor_aux2)
     observador.y = 2
+    contadorCombustivel-=1
+    print(contadorCombustivel)
     
 leMatriz()
 # **********************************************************************

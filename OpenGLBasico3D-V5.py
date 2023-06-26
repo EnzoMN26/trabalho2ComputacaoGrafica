@@ -41,6 +41,8 @@ alvo = Ponto(0,-0.75,-6)
 posicoesPredios = [[0,3,4], [0,6,5], [0,7,4], [0,9,5], [0,12,5], [0,13,5], [0,28,4], [0,29,3], [2,1,5], [2,2,5], [2,6,4], [2,8,3], [2,20,3], [2,21,4], [2,27,5], [2,28,3], [3,2,5], [3,3,5], [3,7,4], [3,9,3], [3,11,5], [3,12,5], [3,22,4], [4,2,5], [4,6,4], [4,8,5], [4,10,4], [4,12,3], [4,13,5], [5,3,5], [5,11,5], [5,22,4], [5,28,5], [6,1,3], [6,2,5], [6,10,4], [6,12,3], [6,13,5], [6,20,3], [6,27,3], [7,2,5], [7,3,5], [7,7,4], [7,11,5], [7,12,5], [7,13,4], [7,21,3], [7,22,4], [7,28,5], [7,29,3], [8,1,3], [8,6,4], [8,8,5], [8,12,3], [8,13,5], [8,28,4], [9,3,5], [9,13,4], [9,22,4], [9,28,5], [10,2,5], [10,10,4], [10,12,3], [10,13,5], [10,20,3], [10,21,5], [10,27,3], [10,28,4], [11,2,5], [11,3,5], [11,22,4], [11,28,5], [11,29,3], [12,1,3], [12,2,5], [12,6,4], [12,12,3], [12,13,5], [12,20,3], [12,21,5], [12,28,4], [13,2,5], [13,3,5], [13,7,4], [13,9,3], [13,11,5], [13,29,3], [14,8,5], [14,12,3], [14,20,3], [14,21,5], [14,27,3], [27,21,3],[27,23,5],[27,29,4],[28,28,3],[28,2,5],[19,16,4],[19,20,5],[15,21,3],[17,22,4],[15,22,5],[27,13,4],[19,18,5], [19,2,4],[19,5,3],[19,9,4],[19,12,5],[21,13,3],[21,10,4],[21,6,3],[18,13,5],[21,16,3],[21,21,5],[23,13,4],[25,13,4],[27,16,5]]
 Texturas = []
 Angulo = 0.0
+camera = 0
+flagAnda = False
 
 # **********************************************************************
 # LoadTexture
@@ -215,56 +217,56 @@ def DesenhaPredio(altura: int):
     # Front Face
     glNormal3f(0,0,1);
     glTexCoord(1,1)
-    glVertex3f(-1, -1,  1);
+    glVertex3f(0, 0,  2);
     glTexCoord(0,1)
-    glVertex3f( 1, -1,  1);
+    glVertex3f( 2, 0,  2);
     glTexCoord(0,0)
-    glVertex3f( 1,  altura,  1);
+    glVertex3f( 2,  altura,  2);
     glTexCoord(1,0)
-    glVertex3f(-1,  altura,  1);
+    glVertex3f(0,  altura,  2);
     # Back Face
     glNormal3f(0,0,-1);
     glTexCoord(0,1)
-    glVertex3f(-1, -1, -1);
+    glVertex3f(0, 0, 0);
     glTexCoord(0,0)
-    glVertex3f(-1,  altura, -1);
+    glVertex3f(0,  altura, 0);
     glTexCoord(1,0)
-    glVertex3f( 1,  altura, -1);
+    glVertex3f( 2,  altura, 0);
     glTexCoord(1,1)
-    glVertex3f( 1, -1, -1);
+    glVertex3f( 2, 0, 0);
     # Top Face
     glNormal3f(0,1,0);
     
-    glVertex3f(-1,  altura, -1);
-    glVertex3f(-1,  altura,  1);
-    glVertex3f( 1,  altura,  1);
-    glVertex3f( 1,  altura, -1);
+    glVertex3f(0,  altura, 0);
+    glVertex3f(0,  altura,  2);
+    glVertex3f( 2,  altura,  2);
+    glVertex3f( 2,  altura, 0);
     # Bottom Face
     glNormal3f(0,-1,0);
-    glVertex3f(-1, -1, -1);
-    glVertex3f( 1, -1, -1);
-    glVertex3f( 1, -1,  1);
-    glVertex3f(-1, -1,  1);
+    glVertex3f(0, 0, 0);
+    glVertex3f( 2, 0, 0);
+    glVertex3f( 2, 0,  2);
+    glVertex3f(0, 0,  2);
     # Right face
     glNormal3f(1,0,0);
     glTexCoord(0,1)
-    glVertex3f( 1, -1, -1);
+    glVertex3f( 2, 0, 0);
     glTexCoord(0,0)
-    glVertex3f( 1,  altura, -1);
+    glVertex3f( 2,  altura, 0);
     glTexCoord(1,0)
-    glVertex3f( 1,  altura,  1);
+    glVertex3f( 2,  altura,  2);
     glTexCoord(1,1)
-    glVertex3f( 1, -1,  1);
+    glVertex3f( 2, 0,  2);
     # Left Face
     glNormal3f(-1,0,0);
     glTexCoord(1,1)
-    glVertex3f(-1, -1, -1);
+    glVertex3f(0, 0, 0);
     glTexCoord(0,1)
-    glVertex3f(-1, -1,  1);
+    glVertex3f(0, 0,  2);
     glTexCoord(0,0)
-    glVertex3f(-1,  altura,  1);
+    glVertex3f(0,  altura,  2);
     glTexCoord(1,0)
-    glVertex3f(-1,  altura, -1);
+    glVertex3f(0,  altura, 0);
     glEnd();
 
 def DesenhaCarro():
@@ -363,17 +365,33 @@ def DesenhaCubo():
     glutSolidCube(1)
     
 def PosicUser():
-    global observador, alvo, carro
+    global observador, alvo, carro, camera
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     # Seta a viewport para ocupar toda a janela
     # glViewport(0, 0, 500, 500)
     #print ("AspectRatio", AspectRatio)
     
-    gluPerspective(60,AspectRatio,0.01,50) # Projecao perspectiva
-    glMatrixMode(GL_MODELVIEW)
-    glLoadIdentity()
-    gluLookAt(observador.x, observador.y, observador.z, alvo.x, alvo.y, alvo.z, 0,1.0,0)
+    if camera == 0:
+        gluPerspective(60,AspectRatio,0.01,100) # Projecao perspectiva
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        gluLookAt(observador.x, observador.y, observador.z, alvo.x, alvo.y, alvo.z, 0,1.0,0)
+    elif camera == 1:
+        gluPerspective(60,AspectRatio,0.01,100) # Projecao perspectiva
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        vetor_aux = alvo.__sub__(carro)
+        vetor_aux = vetor_aux.__mul__(0.01)
+        
+        gluLookAt((carro.__add__(vetor_aux)).x, (carro.__add__(vetor_aux)).y, (carro.__add__(vetor_aux)).z, alvo.x, alvo.y, alvo.z, 0,1.0,0)
+    else:
+        gluPerspective(90,AspectRatio,0.01,200) # Projecao perspectiva
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        gluLookAt(0, 45, 0, -0.01, 0, 0, 0,1.0,0)
+        
+        
 
 # **********************************************************************
 # void DesenhaLadrilho(int corBorda, int corDentro)
@@ -384,29 +402,29 @@ def DesenhaLadrilho():
     glColor3f(1,1,1) # desenha QUAD preenchido
     glBegin ( GL_QUADS )
     glNormal3f(0,1,0)
-    glTexCoord(0,0)
-    glVertex3f(-1.5,  0.0, -1.5)
     glTexCoord(1,0)
-    glVertex3f(-1.5,  0.0,  1.5)
+    glVertex3f(0,  0.0, 0)
     glTexCoord(1,1)
-    glVertex3f( 1.5,  0.0,  1.5)
+    glVertex3f(0,  0.0,  3)
     glTexCoord(0,1)
-    glVertex3f( 1.5,  0.0, -1.5)
+    glVertex3f( 3,  0.0,  3)
+    glTexCoord(0,0)
+    glVertex3f( 3,  0.0, 0)
     glEnd()
     
     glColor3f(1,1,1) # desenha a borda da QUAD 
     glBegin ( GL_LINE_STRIP )
     glNormal3f(0,1,0)
-    glVertex3f(-1.5,  0.0, -1.5)
-    glVertex3f(-1.5,  0.0,  1.5)
-    glVertex3f( 1.5,  0.0,  1.5)
-    glVertex3f( 1.5,  0.0, -1.5)
+    glVertex3f(0,  0.0, 0)
+    glVertex3f(0,  0.0,  3)
+    glVertex3f( 3,  0.0,  3)
+    glVertex3f( 3,  0.0, 0)
     glEnd()
     
 # **********************************************************************
 def DesenhaPiso():
     glPushMatrix()
-    glTranslated(-60,-1,-30)
+    glTranslated(-45,-1,-45)
     aux = 0
     for x in matriznp:
         glPushMatrix()
@@ -420,10 +438,10 @@ def DesenhaPiso():
             else:
                 UseTexture(y-1)
             DesenhaLadrilho()
-            glTranslated(0, 0, 3)
+            glTranslated(3, 0, 0)
             aux2 += 1
         glPopMatrix()
-        glTranslated(3, 0, 0)
+        glTranslated(0, 0, 3)
         aux += 1
     glPopMatrix()       
     
@@ -456,10 +474,23 @@ def rotaObs():
     observador.y = 2
     
 def andaCarro():
-    global carro, alvo, observador
+    global carro, alvo, observador, matriznp
     
+    vetor_aux = (alvo.__sub__(carro)).__mul__(0.2)
+    
+    auxX = math.floor(((carro.__add__(vetor_aux)).x)/3)
+    auxZ = math.floor(((carro.__add__(vetor_aux)).z)/3)
+
+    xMatriz = auxX + 15
+    zMatriz = auxZ + 15
+    
+    if zMatriz > 29 or xMatriz > 29 or zMatriz < 0 or xMatriz < 0:
+        return
+    elif matriznp[zMatriz][xMatriz] == 0:
+        return
+
     vetor_aux = alvo.__sub__(carro)
-    vetor_aux = vetor_aux.__mul__(0.5)
+    vetor_aux = vetor_aux.__mul__(0.05)
     carro = carro.__add__(vetor_aux)
     alvo = alvo.__add__(vetor_aux)
     vetor_aux2 = alvo.__sub__(carro)
@@ -493,19 +524,22 @@ def display():
 
     UseTexture(-1)
     
-    glColor3f(0.5,0.0,0.0) # Vermelho
+    if flagAnda:
+        andaCarro()
+    
+    #glColor3f(0.5,0.0,0.0) # Vermelho
     # glPushMatrix()
     # glTranslatef(-2,0,0)
     # glRotatef(Angulo,0,1,0)
     # DesenhaRetangulo(3)
     # glPopMatrix()
     
-    glColor3f(0.5,0.5,0.0) # Amarelo
-    glPushMatrix()
-    glTranslatef(2,0,0)
-    glRotatef(-Angulo,0,1,0)
-    #DesenhaCubo()
-    glPopMatrix()
+    # glColor3f(0.5,0.5,0.0) # Amarelo
+    # glPushMatrix()
+    # glTranslatef(2,0,0)
+    # glRotatef(-Angulo,0,1,0)
+    # #DesenhaCubo()
+    # glPopMatrix()
 
     Angulo = Angulo + 1
 
@@ -545,15 +579,24 @@ def animate():
 # **********************************************************************
 ESCAPE = b'\x1b'
 def keyboard(*args):
-    global image
+    global image, camera, flagAnda
     #print (args)
     # If escape is pressed, kill everything.
-
+    
     if args[0] == ESCAPE:   # Termina o programa qdo
-        os._exit(0)         # a tecla ESC for pressionada
-
+        os._exit(0)     
+        # a tecla ESC for pressionada
+    if args[0] == b'k' or args[0] == b'K':   # Termina o programa qdo
+        #os._exit(0)         # a tecla ESC for pressionada
+        if camera == 0:
+            camera = 1
+        elif camera == 1:
+            camera = 2
+        else:
+            camera = 0
+            
     if args[0] == b' ':
-        init()
+        flagAnda = not(flagAnda)
 
     if args[0] == b'i':
         image.show()

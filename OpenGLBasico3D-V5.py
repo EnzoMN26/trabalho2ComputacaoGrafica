@@ -126,6 +126,11 @@ def init():
     glEnable (GL_CULL_FACE )
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
+    nome = "747.tri"
+
+    LeObjeto(nome)
+    criaObjeto()
+
     global Texturas
     Texturas += [LoadTexture('./TexturaAsfalto/CROSS.jpeg')]
     Texturas += [LoadTexture('./TexturaAsfalto/DL.jpeg')]
@@ -210,6 +215,41 @@ def leMatriz():
             data = line.split()
             matriz.append(data)
         matriznp = np.array(matriz,dtype='int')
+
+def LeObjeto (nomeFile):
+    global triangulos
+    triangulos = []
+    with open(nomeFile,'r') as tresd:
+        for line in tresd:
+            data = line.split(' ')
+            data = list(filter(('').__ne__, data))
+            data = [float(data[0]),float(data[1]),float(data[2]),float(data[3]),float(data[4]),float(data[5]),float(data[6]),float(data[7]),float(data[8])]
+            triangulos.append(data) 
+
+def criaObjeto():
+    global normais, pontos
+    normais = []
+    pontos = []
+    for t in triangulos:
+        vetor1 = [t[3]-t[0],t[4]-t[1],t[5]-t[2]]
+        vetor2 = [t[6]-t[0],t[7]-t[1],t[8]-t[2]]
+        normais.append(np.cross(vetor1,vetor2))
+        pontos.append([t[0]/100,t[1]/100,t[2]/100,t[3]/100,t[4]/100,t[5]/100,t[6]/100,t[7]/100,t[8]/100])
+
+def ExibeObjeto():
+    aux = 0
+    glBegin( GL_TRIANGLES )
+    for p in pontos:
+        normal = normais[aux]
+        glNormal3f(normal[0],normal[1],normal[2])
+        glVertex(p[0],p[1],p[2])
+        glVertex(p[3],p[4],p[5])
+        glVertex(p[6],p[7],p[8])
+        aux+=1
+    glEnd()
+
+
+
 
 
 def DesenhaPredio(altura: int):
@@ -546,6 +586,34 @@ def display():
     if flagAnda:
         andaCarro()
     
+    glPushMatrix()
+    glTranslatef ( -1, 5, -8 )
+    glRotatef(0,0,0,1)
+    glColor3f(1,0,0)
+    ExibeObjeto()
+    glPopMatrix()
+
+    glPushMatrix()
+    glTranslatef ( -10, 5, -5 )
+    glRotatef(0,0,0,1)
+    glColor3f(1,0,0)
+    ExibeObjeto()
+    glPopMatrix()
+
+    glPushMatrix()
+    glTranslatef ( 15, 5, 6 )
+    glRotatef(0,0,0,1)
+    glColor3f(1,0,0)
+    ExibeObjeto()
+    glPopMatrix()
+
+    glPushMatrix()
+    glTranslatef ( -10, 5, 8 )
+    glRotatef(0,0,0,1)
+    glColor3f(1,0,0)
+    ExibeObjeto()
+    glPopMatrix()
+
     #glColor3f(0.5,0.0,0.0) # Vermelho
     # glPushMatrix()
     # glTranslatef(0,1,0)

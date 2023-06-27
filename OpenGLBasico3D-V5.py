@@ -547,7 +547,7 @@ def andaCarro():
         return
     
     vetor_aux = alvo.__sub__(carro)
-    vetor_aux = vetor_aux.__mul__(0.05)
+    vetor_aux = vetor_aux.__mul__(0.1)
     carro = carro.__add__(vetor_aux)
     alvo = alvo.__add__(vetor_aux)
     vetor_aux2 = alvo.__sub__(carro)
